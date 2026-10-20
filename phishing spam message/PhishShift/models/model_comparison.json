@@ -1,0 +1,61 @@
+{
+  "evaluation_timestamp": "2026-10-20 16:32:21",
+  "test_sample_size": 3490,
+  "class_breakdown": {
+    "legitimate": 2193,
+    "phishing": 1297
+  },
+  "models": {
+    "rules_based": {
+      "name": "Rules-Based Baseline",
+      "accuracy": 0.5893982808022923,
+      "precision": 0.43806921675774135,
+      "recall": 0.3708558211256746,
+      "f1_score": 0.40167014613778707,
+      "roc_auc": null,
+      "latency_ms_per_sample": 0.744,
+      "confusion_matrix": {
+        "tn": 1576,
+        "fp": 617,
+        "fn": 816,
+        "tp": 481
+      },
+      "strengths": "Fast, fully explainable, transparent heuristic rules.",
+      "weaknesses": "Lacks nuance for zero-day phishing phrasing, lower recall."
+    },
+    "logistic_regression": {
+      "name": "Logistic Regression + TF-IDF",
+      "accuracy": 0.9765042979942693,
+      "precision": 0.9802371541501976,
+      "recall": 0.9560524286815728,
+      "f1_score": 0.9679937548790007,
+      "roc_auc": 0.9973761751926031,
+      "latency_ms_per_sample": 0.001,
+      "confusion_matrix": {
+        "tn": 2168,
+        "fp": 25,
+        "fn": 57,
+        "tp": 1240
+      },
+      "strengths": "High precision and balanced F1-score, well-calibrated probabilities for uncertainty estimation.",
+      "weaknesses": "Requires feature extraction pipeline; linear decision boundary."
+    },
+    "naive_bayes": {
+      "name": "Multinomial Naive Bayes + TF-IDF",
+      "accuracy": 0.9664756446991404,
+      "precision": 0.9697452229299363,
+      "recall": 0.9390902081727063,
+      "f1_score": 0.954171562867215,
+      "roc_auc": 0.995624614802619,
+      "latency_ms_per_sample": 0.002,
+      "confusion_matrix": {
+        "tn": 2155,
+        "fp": 38,
+        "fn": 79,
+        "tp": 1218
+      },
+      "strengths": "Ultra-fast inference, probabilistic prior modeling.",
+      "weaknesses": "Conditional independence assumption may underestimate combined term risks."
+    }
+  }
+}

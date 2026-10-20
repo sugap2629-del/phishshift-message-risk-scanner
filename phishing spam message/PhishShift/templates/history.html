@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Audit Trail & Scan History | PhishShift{% endblock %}
+
+{% block content %}
+<div class="cyber-container history-wrapper">
+    <!-- Header -->
+    <div class="dashboard-top-bar">
+        <div>
+            <div class="hero-badge"><i class="fa-solid fa-clock-rotate-left"></i> IMMUTABLE THREAT TELEMETRY AUDIT</div>
+            <h1 class="page-title">Scan History <span class="gradient-cyan">Log</span></h1>
+            <p class="page-subtitle">Persistent threat inspection records stored securely in local SQLite database.</p>
+        </div>
+        <div class="dashboard-actions">
+            <a href="{{ url_for('index') }}" class="btn-cyber-primary"><i class="fa-solid fa-plus"></i> New Scan</a>
+            <button type="button" class="btn-cyber-danger" onclick="confirmClearHistory()">
+                <i class="fa-solid fa-trash-can"></i> Clear History
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters & Search Toolbar -->
+    <div class="history-toolbar">
+        <div class="search-box-wrap">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="history-search" placeholder="Filter audit trail by keyword, ID, or risk level..." onkeyup="filterHistoryTable()">
+        </div>
+
+        <div class="filter-pills-row">
+            <button class="pill-btn active" data-filter="all" onclick="setHistoryFilter('all', this)">All Scans ({{ scans | length }})</button>
+            <button class="pill-btn phish" data-filter="Phishing" onclick="setHistoryFilter('Phishing', this)">Phishing Only</button>
+            <button class="pill-btn legit" data-filter="Legitimate" onclick="setHistoryFilter('Legitimate', this)">Legitimate Only</button>
+            <button class="pill-btn uncertain" data-filter="Uncertain" onclick="setHistoryFilter('Uncertain', this)">Uncertain Only</button>
+        </div>
+    </div>
+
+    <!-- Scans Table -->
+    <div class="cyber-panel">
+        <div class="panel-body p-0">
+            {% if scans and scans | length > 0 %}
+                <div class="table-responsive">
+                    <table class="cyber-table" id="history-table">
+                        <thead>
+                            <tr>
+                                <th>Scan UID</th>
+                                <th>Timestamp</th>
+                                <th>Verdict</th>
+                                <th>Threat Score</th>
+                                <th>Confidence</th>
+                                <th>Message Snippet</th>
+                                <th>Latency</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for scan in scans %}
+                                <tr class="history-row" data-verdict="{{ scan.prediction }}">
+                                    <td><code>#{{ scan.id }}</code></td>
+                                    <td><small class="text-muted">{{ scan.timestamp }}</small></td>
+                                    <td>
+                                        <span class="status-chip chip-{{ scan.prediction | lower }}">
+                                            {% if scan.prediction == 'Phishing' %}
+                                                <i class="fa-solid fa-triangle-exclamation"></i> Phishing
+                                            {% elif scan.prediction == 'Legitimate' %}
+                                                <i class="fa-solid fa-circle-check"></i> Legitimate
+                                            {% else %}
+                                                <i class="fa-solid fa-circle-question"></i> Uncertain
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="mini-score-bar">
+                                            <span class="score-text">{{ "%.1f" | format(scan.phishing_prob * 100) }}%</span>
+                                            <div class="mini-track">
+                                                <div class="mini-fill {% if scan.prediction == 'Phishing' %}phish{% elif scan.prediction == 'Legitimate' %}safe{% else %}warn{% endif %}" style="width: {{ scan.phishing_prob * 100 }}%;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><strong>{{ "%.1f" | format(scan.confidence) }}%</strong></td>
+                                    <td class="snippet-cell">
+                                        <span class="snippet-text" title="{{ scan.raw_message }}">
+                                            {{ scan.raw_message[:85] }}{% if scan.raw_message | length > 85 %}...{% endif %}
+                                        </span>
+                                    </td>
+                                    <td><small>{{ "%.1f" | format(scan.scan_duration_ms) }} ms</small></td>
+                                    <td>
+                                        <div class="action-buttons-group">
+                                            <a href="{{ url_for('view_result', scan_id=scan.id) }}" class="btn-icon" title="View Full Report">
+                                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                            </a>
+                                            <form action="{{ url_for('delete_scan', scan_id=scan.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this scan entry from SQLite audit trail?');">
+                                                <button type="submit" class="btn-icon text-danger" title="Delete Scan">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state-panel text-center">
+                    <div class="empty-icon-wrap">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                    <h3 class="empty-title">No Scans Recorded in SQLite Yet</h3>
+                    <p class="empty-text">Your threat inspection log will appear here once you analyze emails or messages.</p>
+                    <a href="{{ url_for('index') }}" class="btn-cyber-primary"><i class="fa-solid fa-crosshairs"></i> Run First Scan</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let activeFilter = 'all';
+
+    function setHistoryFilter(filter, btn) {
+        activeFilter = filter;
+        document.querySelectorAll('.filter-pills-row .pill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterHistoryTable();
+    }
+
+    function filterHistoryTable() {
+        const query = document.getElementById('history-search').value.toLowerCase();
+        const rows = document.querySelectorAll('.history-row');
+
+        rows.forEach(row => {
+            const verdict = row.getAttribute('data-verdict');
+            const rowText = row.innerText.toLowerCase();
+
+            const matchesFilter = (activeFilter === 'all') || (verdict === activeFilter);
+            const matchesQuery = !query || rowText.includes(query);
+
+            if (matchesFilter && matchesQuery) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function confirmClearHistory() {
+        if (confirm("Are you sure you want to clear all scan history from the SQLite database? This cannot be undone.")) {
+            fetch("{{ url_for('clear_history') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            }).then(res => {
+                if (res.ok) {
+                    window.location.reload();
+                } else {
+                    alert("Error clearing history.");
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}

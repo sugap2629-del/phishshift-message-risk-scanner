@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}System Architecture & Methodology | PhishShift{% endblock %}
+
+{% block content %}
+<div class="cyber-container about-page-wrapper">
+    <!-- Header -->
+    <section class="hero-section text-center">
+        <div class="hero-badge"><i class="fa-solid fa-microchip"></i> SYSTEM ARCHITECTURE & THREAT INTELLIGENCE</div>
+        <h1 class="hero-title">Inside <span class="gradient-cyan">PhishShift</span></h1>
+        <p class="hero-subtitle">
+            An in-depth review of our machine learning pipeline, dataset cleaning methodology, tri-state classification mechanics, and model benchmark comparisons.
+        </p>
+    </section>
+
+    <!-- Architecture Diagram / Breakdown -->
+    <section class="cyber-panel">
+        <div class="panel-header">
+            <h2 class="panel-title"><i class="fa-solid fa-network-wired"></i> End-to-End System Architecture</h2>
+        </div>
+        <div class="panel-body">
+            <div class="arch-flow-diagram">
+                <div class="arch-node">
+                    <div class="node-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+                    <span class="node-title">1. Raw Input</span>
+                    <span class="node-sub">Email / SMS / Header</span>
+                </div>
+                <div class="arch-arrow"><i class="fa-solid fa-arrow-right-long"></i></div>
+
+                <div class="arch-node">
+                    <div class="node-icon"><i class="fa-solid fa-broom"></i></div>
+                    <span class="node-title">2. Sanitizer</span>
+                    <span class="node-sub">URL & Token Norm</span>
+                </div>
+                <div class="arch-arrow"><i class="fa-solid fa-arrow-right-long"></i></div>
+
+                <div class="arch-node highlight">
+                    <div class="node-icon"><i class="fa-solid fa-brain"></i></div>
+                    <span class="node-title">3. Dual-Engine</span>
+                    <span class="node-sub">TF-IDF + Heuristics</span>
+                </div>
+                <div class="arch-arrow"><i class="fa-solid fa-arrow-right-long"></i></div>
+
+                <div class="arch-node">
+                    <div class="node-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                    <span class="node-title">4. Tri-State Logic</span>
+                    <span class="node-sub">Phish / Legit / Uncertain</span>
+                </div>
+                <div class="arch-arrow"><i class="fa-solid fa-arrow-right-long"></i></div>
+
+                <div class="arch-node">
+                    <div class="node-icon"><i class="fa-solid fa-database"></i></div>
+                    <span class="node-title">5. Persistence</span>
+                    <span class="node-sub">SQLite Audit Trail</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kaggle Dataset & Cleaning Methodology -->
+    <div class="about-grid">
+        <div class="cyber-panel">
+            <div class="panel-header">
+                <h2 class="panel-title"><i class="fa-solid fa-database"></i> Kaggle Dataset & Sanitization</h2>
+            </div>
+            <div class="panel-body">
+                <p class="mb-3">
+                    PhishShift utilizes the verified Kaggle Phishing Email corpus, containing real-world benign correspondence, spam campaigns, and targeted spear-phishing lures.
+                </p>
+                <ul class="cyber-bullet-list">
+                    <li>
+                        <strong>Dynamic Column Validation:</strong> Detects and validates actual column names (e.g. <code>Email Text</code>, <code>Email Type</code>) dynamically rather than relying on brittle assumptions.
+                    </li>
+                    <li>
+                        <strong>Missing Value Elimination:</strong> Identified and dropped 16 corrupted rows with null message payloads.
+                    </li>
+                    <li>
+                        <strong>Deduplication Pipeline:</strong> Detected and purged 1,181 duplicate email messages to prevent test-set leakage and biased class weighting.
+                    </li>
+                    <li>
+                        <strong>Sanitized Corpus Size:</strong> Cleaned from 18,650 raw records to 17,450 verified instances (10,966 Legitimate, 6,484 Phishing).
+                    </li>
+                    <li>
+                        <strong>Stratified Train/Test Split:</strong> 80% training (13,960 samples) and 20% test (3,490 samples) with preserved label ratios.
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tri-State Decision Thresholds -->
+        <div class="cyber-panel">
+            <div class="panel-header">
+                <h2 class="panel-title"><i class="fa-solid fa-traffic-light"></i> Tri-State Decision Spectrum</h2>
+            </div>
+            <div class="panel-body">
+                <p class="mb-3">
+                    Traditional binary classifiers force high-risk decisions on ambiguous inputs. PhishShift implements a calibrated tri-state safety protocol:
+                </p>
+                <div class="spectrum-cards">
+                    <div class="spec-card phish">
+                        <div class="spec-badge">P &ge; 65%</div>
+                        <h4>Phishing (High Risk)</h4>
+                        <p>High probability of malicious intent or multiple urgent heuristic rule breaches. Automated blocking and quarantining recommended.</p>
+                    </div>
+
+                    <div class="spec-card warn">
+                        <div class="spec-badge">35% &lt; P &lt; 65%</div>
+                        <h4>Uncertain (Flagged for Review)</h4>
+                        <p>Statistical uncertainty or model-heuristic conflict. Alerts the user to verify the communication out-of-band before taking action.</p>
+                    </div>
+
+                    <div class="spec-card safe">
+                        <div class="spec-badge">P &le; 35%</div>
+                        <h4>Legitimate (Safe)</h4>
+                        <p>Statistical alignment with clean business correspondence and zero critical security signature triggers. Normal delivery permitted.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3-Approach Comparative Review -->
+    <section class="cyber-panel">
+        <div class="panel-header">
+            <h2 class="panel-title"><i class="fa-solid fa-flask-vial"></i> 3-Approach Model Comparison & Empirical Findings</h2>
+        </div>
+        <div class="panel-body">
+            <div class="comparison-cards-grid">
+                <div class="approach-card">
+                    <div class="approach-header">
+                        <span class="approach-num">01</span>
+                        <h3>Rules-Based Baseline</h3>
+                    </div>
+                    <div class="approach-stats">
+                        <div class="stat-pill">Accuracy: 58.94%</div>
+                        <div class="stat-pill">F1-Score: 40.17%</div>
+                    </div>
+                    <p class="approach-desc">
+                        Employs regex-driven heuristic signatures detecting urgency hooks ("account suspended", "verify credentials", "within 24 hours"), financial bait, and obfuscated URLs.
+                    </p>
+                    <div class="approach-pros-cons">
+                        <span class="pro"><i class="fa-solid fa-check"></i> 100% transparent and instant</span>
+                        <span class="con"><i class="fa-solid fa-xmark"></i> High false negatives on evasive phrasing</span>
+                    </div>
+                </div>
+
+                <div class="approach-card highlight">
+                    <div class="approach-badge">PRIMARY PRODUCTION MODEL</div>
+                    <div class="approach-header">
+                        <span class="approach-num">02</span>
+                        <h3>Logistic Regression (TF-IDF)</h3>
+                    </div>
+                    <div class="approach-stats">
+                        <div class="stat-pill highlight">Accuracy: 97.65%</div>
+                        <div class="stat-pill highlight">F1-Score: 96.80%</div>
+                    </div>
+                    <p class="approach-desc">
+                        Utilizes sublinear term-frequency inverse-document-frequency with 10,000 n-gram features (unigrams & bigrams) paired with L2-regularized Logistic Regression.
+                    </p>
+                    <div class="approach-pros-cons">
+                        <span class="pro"><i class="fa-solid fa-check"></i> Exceptional 98.02% precision</span>
+                        <span class="pro"><i class="fa-solid fa-check"></i> Calibrated probabilities for uncertainty</span>
+                    </div>
+                </div>
+
+                <div class="approach-card">
+                    <div class="approach-header">
+                        <span class="approach-num">03</span>
+                        <h3>Multinomial Naive Bayes</h3>
+                    </div>
+                    <div class="approach-stats">
+                        <div class="stat-pill">Accuracy: 96.65%</div>
+                        <div class="stat-pill">F1-Score: 95.42%</div>
+                    </div>
+                    <p class="approach-desc">
+                        Classic probabilistic classifier with Laplace smoothing (&alpha;=0.1) modeling bag-of-words likelihoods across email categories.
+                    </p>
+                    <div class="approach-pros-cons">
+                        <span class="pro"><i class="fa-solid fa-check"></i> Very rapid training & inference</span>
+                        <span class="con"><i class="fa-solid fa-xmark"></i> Strong feature independence assumption</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cybersecurity Best Practices -->
+    <section class="cyber-panel">
+        <div class="panel-header">
+            <h2 class="panel-title"><i class="fa-solid fa-shield-virus"></i> Organizational Defense Recommendations</h2>
+        </div>
+        <div class="panel-body">
+            <div class="defense-grid">
+                <div class="defense-item">
+                    <i class="fa-solid fa-key accent-cyan"></i>
+                    <h4>Multi-Factor Authentication (MFA)</h4>
+                    <p>Enforce FIDO2/WebAuthn hardware security keys to mitigate credential harvesting attacks even if a user falls for a phishing lure.</p>
+                </div>
+
+                <div class="defense-item">
+                    <i class="fa-solid fa-envelope-circle-check accent-green"></i>
+                    <h4>DMARC, DKIM & SPF Alignment</h4>
+                    <p>Configure strict DMARC rejection policies to prevent domain spoofing and forged sender addresses at the mail server boundary.</p>
+                </div>
+
+                <div class="defense-item">
+                    <i class="fa-solid fa-phone-volume accent-yellow"></i>
+                    <h4>Out-of-Band Verification</h4>
+                    <p>Establish strict operational protocols requiring direct phone or in-person verification for any fund transfers or credential alterations.</p>
+                </div>
+
+                <div class="defense-item">
+                    <i class="fa-solid fa-user-shield accent-red"></i>
+                    <h4>Continuous Security Training</h4>
+                    <p>Conduct realistic phishing simulations and empower personnel to report ambiguous emails via one-click reporting tools.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

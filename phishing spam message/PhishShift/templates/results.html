@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% block title %}Scan Report #{{ scan.id }} | PhishShift Threat Analysis{% endblock %}
+
+{% block content %}
+<div class="cyber-container results-page-wrapper">
+    <!-- Top Action Breadcrumb -->
+    <div class="results-breadcrumb">
+        <a href="{{ url_for('index') }}" class="breadcrumb-link"><i class="fa-solid fa-arrow-left"></i> Back to Scanner</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Scan Analysis #{{ scan.id }}</span>
+        <span class="scan-time-tag"><i class="fa-regular fa-clock"></i> {{ scan.timestamp }}</span>
+    </div>
+
+    <!-- Verdict Banner -->
+    <div class="verdict-banner-card verdict-{{ scan.prediction | lower }}">
+        <div class="verdict-icon-container">
+            {% if scan.prediction == 'Phishing' %}
+                <div class="verdict-icon-box phish-glow">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+            {% elif scan.prediction == 'Legitimate' %}
+                <div class="verdict-icon-box safe-glow">
+                    <i class="fa-solid fa-shield-check"></i>
+                </div>
+            {% else %}
+                <div class="verdict-icon-box uncertain-glow">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="verdict-text-container">
+            <div class="verdict-label-row">
+                <span class="verdict-badge">{{ scan.risk_level }} RISK</span>
+                <span class="scan-id-tag">SCAN_UID: {{ scan.id }}</span>
+            </div>
+            <h1 class="verdict-title">
+                {% if scan.prediction == 'Phishing' %}
+                    CRITICAL THREAT: PHISHING DETECTED
+                {% elif scan.prediction == 'Legitimate' %}
+                    AUTHENTIC: LEGITIMATE MESSAGE
+                {% else %}
+                    AMBIGUOUS: UNCERTAIN &ndash; MANUAL AUDIT REQUIRED
+                {% endif %}
+            </h1>
+            <p class="verdict-summary-text">
+                {% if scan.prediction == 'Phishing' %}
+                    High-confidence malicious signatures detected. The message exhibits strong phishing markers, credential harvesting lures, and urgency signals.
+                {% elif scan.prediction == 'Legitimate' %}
+                    The message structure and lexical distribution are consistent with benign corporate communications. No active phishing heuristics were triggered.
+                {% else %}
+                    The statistical confidence falls within the ambiguous boundary (35% &ndash; 65%). Conflicting or borderline lexical features require human inspection.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="verdict-score-box">
+            <div class="score-circle">
+                <span class="score-number">{{ "%.1f" | format(scan.phishing_prob * 100) }}%</span>
+                <span class="score-subtext">Threat Score</span>
+            </div>
+            <div class="score-caption">
+                Confidence: <strong>{{ "%.1f" | format(scan.confidence) }}%</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Threat Analysis Metrics & Gauges Grid -->
+    <div class="results-grid">
+        <!-- Left: Probability & Model Breakdown -->
+        <div class="results-column left-col">
+            <div class="cyber-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i class="fa-solid fa-chart-pie"></i> Probability Spectrum</h2>
+                </div>
+                <div class="panel-body">
+                    <!-- Probability Bar -->
+                    <div class="prob-bar-wrapper">
+                        <div class="prob-labels">
+                            <span class="prob-label-safe">Safe: {{ "%.1f" | format(scan.legit_prob * 100) }}%</span>
+                            <span class="prob-label-phish">Phish: {{ "%.1f" | format(scan.phishing_prob * 100) }}%</span>
+                        </div>
+                        <div class="prob-progress-track">
+                            <div class="prob-progress-fill safe" style="width: {{ scan.legit_prob * 100 }}%;"></div>
+                            <div class="prob-progress-fill phish" style="width: {{ scan.phishing_prob * 100 }}%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Stats Grid -->
+                    <div class="metric-tiles-row">
+                        <div class="metric-tile">
+                            <span class="tile-label">Primary Classifier</span>
+                            <span class="tile-val accent-cyan">{{ scan.model_name or 'Logistic Regression' }}</span>
+                        </div>
+                        <div class="metric-tile">
+                            <span class="tile-label">Engine Latency</span>
+                            <span class="tile-val">{{ "%.2f" | format(scan.scan_duration_ms) }} ms</span>
+                        </div>
+                        <div class="metric-tile">
+                            <span class="tile-label">Model Accuracy</span>
+                            <span class="tile-val">97.65%</span>
+                        </div>
+                        <div class="metric-tile">
+                            <span class="tile-label">Risk Category</span>
+                            <span class="tile-val risk-{{ scan.risk_level | lower }}">{{ scan.risk_level }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Recommended Protocol -->
+                    <div class="protocol-box protocol-{{ scan.prediction | lower }}">
+                        <div class="protocol-title">
+                            <i class="fa-solid fa-clipboard-check"></i> Standard Operating Procedure:
+                        </div>
+                        <p class="protocol-desc">
+                            {% if scan.prediction == 'Phishing' %}
+                                <strong>ACTION REQUIRED:</strong> Do not click hyperlinks, do not open attachments, and do not submit credentials or personal info. Quarantine the message and submit the sender header to your security operations team.
+                            {% elif scan.prediction == 'Legitimate' %}
+                                <strong>CLEAN:</strong> No urgent threat signatures detected. Normal processing permitted. Always maintain standard email security precautions.
+                            {% else %}
+                                <strong>CAUTION ADVISED:</strong> Do not act on any urgent instructions or financial requests. Contact the sender through an independent, pre-verified channel (e.g. phone call, internal chat) before proceeding.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Heuristic Rules Triggered -->
+            <div class="cyber-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i class="fa-solid fa-code-branch"></i> Heuristic Security Signatures</h2>
+                    <span class="badge-mini">{{ rule_triggers | length }} detected</span>
+                </div>
+                <div class="panel-body">
+                    {% if rule_triggers and rule_triggers | length > 0 %}
+                        <ul class="rule-triggers-list">
+                            {% for rule in rule_triggers %}
+                                <li class="rule-trigger-item">
+                                    <i class="fa-solid fa-bolt-lightning accent-red"></i>
+                                    <div class="rule-trigger-info">
+                                        <span class="rule-category">{{ rule.split(':')[0] | replace('_', ' ') | title }}</span>
+                                        <span class="rule-match-token">Triggered by pattern: <code>{{ rule.split(':')[1] }}</code></span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="empty-rules-msg">
+                            <i class="fa-solid fa-circle-check accent-green"></i>
+                            <span>Zero aggressive heuristic signatures triggered.</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Message Content & Keyword Analysis -->
+        <div class="results-column right-col">
+            <!-- Explainability: Influential Keywords -->
+            <div class="cyber-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i class="fa-solid fa-magnifying-glass-chart"></i> Lexical Feature Attribution</h2>
+                    <span class="badge-mini">TF-IDF Weights</span>
+                </div>
+                <div class="panel-body">
+                    <p class="panel-subtitle">Tokens extracted from your message that most strongly influenced the classification:</p>
+                    <div class="keywords-cloud">
+                        {% if keywords_found and keywords_found | length > 0 %}
+                            {% for kw in keywords_found %}
+                                <span class="keyword-chip {% if kw.weight > 0 %}chip-pos{% else %}chip-neg{% endif %}" title="Attribution weight: {{ kw.weight }}">
+                                    {{ kw.feature }} <small>{{ "%+.2f" | format(kw.weight) }}</small>
+                                </span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="text-muted">Standard vocabulary with neutral distribution.</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inspect Message Body -->
+            <div class="cyber-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i class="fa-solid fa-file-lines"></i> Scanned Message Transcript</h2>
+                    <button type="button" class="btn-subtle" onclick="copyRawMessage()" id="btn-copy-raw">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="panel-body">
+                    <div class="message-preview-container">
+                        <pre id="raw-message-text">{{ scan.raw_message }}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="results-actions-bar">
+                <a href="{{ url_for('index') }}" class="btn-cyber-primary">
+                    <i class="fa-solid fa-crosshairs"></i> Scan Another Message
+                </a>
+                <a href="{{ url_for('history') }}" class="btn-cyber-secondary">
+                    <i class="fa-solid fa-clock-rotate-left"></i> View Full Audit Log
+                </a>
+                <button type="button" class="btn-cyber-secondary" onclick="exportScanJson()">
+                    <i class="fa-solid fa-download"></i> Export JSON
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function copyRawMessage() {
+        const text = document.getElementById('raw-message-text').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.getElementById('btn-copy-raw');
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+            setTimeout(() => { btn.innerHTML = original; }, 2000);
+        });
+    }
+
+    function exportScanJson() {
+        const scanData = {
+            id: {{ scan.id }},
+            timestamp: "{{ scan.timestamp }}",
+            prediction: "{{ scan.prediction }}",
+            risk_level: "{{ scan.risk_level }}",
+            phishing_probability: {{ scan.phishing_prob }},
+            legitimate_probability: {{ scan.legit_prob }},
+            confidence_percentage: {{ scan.confidence }},
+            model: "{{ scan.model_name }}",
+            rules_triggered: {{ rule_triggers | tojson }},
+            raw_message: document.getElementById('raw-message-text').innerText
+        };
+        const blob = new Blob([JSON.stringify(scanData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `phishshift-scan-${scanData.id}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+</script>
+{% endblock %}

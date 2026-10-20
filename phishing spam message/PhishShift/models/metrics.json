@@ -1,0 +1,201 @@
+{
+  "generated_at": "2026-10-20 16:31:20",
+  "model_type": "Logistic Regression + TF-IDF",
+  "training_duration_seconds": 26.04,
+  "dataset_statistics": {
+    "initial_rows": 18650,
+    "dropped_nulls": 16,
+    "duplicates_removed": 1181,
+    "final_rows": 17450,
+    "text_column_detected": "Email Text",
+    "label_column_detected": "Email Type",
+    "class_distribution": {
+      "Legitimate": 10966,
+      "Phishing": 6484
+    }
+  },
+  "train_samples": 13960,
+  "test_samples": 3490,
+  "performance": {
+    "train_accuracy": 0.9922636103151863,
+    "test_accuracy": 0.9765042979942693,
+    "precision": 0.9802371541501976,
+    "recall": 0.9560524286815728,
+    "f1_score": 0.9679937548790007,
+    "roc_auc": 0.9973761751926031,
+    "confusion_matrix": {
+      "true_negative": 2168,
+      "false_positive": 25,
+      "false_negative": 57,
+      "true_positive": 1240
+    }
+  },
+  "top_phishing_indicators": [
+    {
+      "feature": "click",
+      "weight": 6.0894
+    },
+    {
+      "feature": "http",
+      "weight": 4.9175
+    },
+    {
+      "feature": "2005",
+      "weight": 4.7177
+    },
+    {
+      "feature": "remove",
+      "weight": 4.5229
+    },
+    {
+      "feature": "free",
+      "weight": 4.1006
+    },
+    {
+      "feature": "2004",
+      "weight": 3.9651
+    },
+    {
+      "feature": "life",
+      "weight": 3.7114
+    },
+    {
+      "feature": "money_val",
+      "weight": 3.6278
+    },
+    {
+      "feature": "money",
+      "weight": 3.5971
+    },
+    {
+      "feature": "email",
+      "weight": 3.461
+    },
+    {
+      "feature": "mobile",
+      "weight": 3.352
+    },
+    {
+      "feature": "site",
+      "weight": 3.1852
+    },
+    {
+      "feature": "reply",
+      "weight": 3.1441
+    },
+    {
+      "feature": "removed",
+      "weight": 2.9326
+    },
+    {
+      "feature": "meds",
+      "weight": 2.9242
+    },
+    {
+      "feature": "online",
+      "weight": 2.8697
+    },
+    {
+      "feature": "viagra",
+      "weight": 2.7734
+    },
+    {
+      "feature": "best",
+      "weight": 2.7576
+    },
+    {
+      "feature": "low",
+      "weight": 2.7058
+    },
+    {
+      "feature": "quality",
+      "weight": 2.699
+    }
+  ],
+  "top_legitimate_indicators": [
+    {
+      "feature": "enron",
+      "weight": -8.5218
+    },
+    {
+      "feature": "wrote",
+      "weight": -6.1929
+    },
+    {
+      "feature": "http_url",
+      "weight": -5.2703
+    },
+    {
+      "feature": "thanks",
+      "weight": -5.2195
+    },
+    {
+      "feature": "language",
+      "weight": -5.0187
+    },
+    {
+      "feature": "university",
+      "weight": -4.515
+    },
+    {
+      "feature": "2002",
+      "weight": -4.4613
+    },
+    {
+      "feature": "linguistics",
+      "weight": -4.1919
+    },
+    {
+      "feature": "vince",
+      "weight": -4.0179
+    },
+    {
+      "feature": "edu",
+      "weight": -3.9265
+    },
+    {
+      "feature": "2001",
+      "weight": -3.792
+    },
+    {
+      "feature": "attached",
+      "weight": -3.7847
+    },
+    {
+      "feature": "louise",
+      "weight": -3.6217
+    },
+    {
+      "feature": "enron com",
+      "weight": -3.4706
+    },
+    {
+      "feature": "2000",
+      "weight": -3.3941
+    },
+    {
+      "feature": "english",
+      "weight": -3.1957
+    },
+    {
+      "feature": "url",
+      "weight": -3.1521
+    },
+    {
+      "feature": "questions",
+      "weight": -3.0955
+    },
+    {
+      "feature": "713",
+      "weight": -3.0258
+    },
+    {
+      "feature": "http_url date",
+      "weight": -2.9447
+    }
+  ],
+  "thresholds": {
+    "phishing": 0.65,
+    "legitimate": 0.35
+  }
+}

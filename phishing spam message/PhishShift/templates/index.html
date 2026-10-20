@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}PhishShift | Intelligent Message Scanner{% endblock %}
+
+{% block content %}
+<div class="cyber-container scanner-page-wrapper">
+    <!-- Hero Section -->
+    <section class="hero-section text-center">
+        <div class="hero-badge">
+            <i class="fa-solid fa-radar"></i> ADVANCED THREAT ANALYSIS ENGINE
+        </div>
+        <h1 class="hero-title">
+            Enterprise <span class="gradient-cyan">Phishing & Spam</span> Detection
+        </h1>
+        <p class="hero-subtitle">
+            Harnessing real-world Kaggle threat intelligence, TF-IDF lexical modeling, and heuristic security rules for transparent, tri-state threat verdict: <strong>Phishing</strong>, <strong>Legitimate</strong>, or <strong>Uncertain</strong>.
+        </p>
+    </section>
+
+    <!-- Scanner Interactive Panel -->
+    <section class="scanner-card" id="scanner-panel">
+        <div class="card-header cyber-card-header">
+            <div class="terminal-dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+            </div>
+            <div class="terminal-title">
+                <i class="fa-solid fa-terminal"></i> THREAT_INSPECTOR // ACTIVE
+            </div>
+            <div class="scanner-controls-top">
+                <button type="button" class="btn-preset-hint" id="load-sample-dropdown-btn">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Load Attack Samples
+                </button>
+            </div>
+        </div>
+
+        <!-- Sample Presets Toolbar -->
+        <div class="samples-toolbar" id="samples-toolbar">
+            <span class="toolbar-label"><i class="fa-solid fa-flask"></i> Test Presets:</span>
+            <button type="button" class="sample-chip chip-phish" id="btn-sample-phish" onclick="loadSample('phish')">
+                <i class="fa-solid fa-triangle-exclamation"></i> Phishing Scam
+            </button>
+            <button type="button" class="sample-chip chip-legit" id="btn-sample-legit" onclick="loadSample('legit')">
+                <i class="fa-solid fa-circle-check"></i> Clean Corporate
+            </button>
+            <button type="button" class="sample-chip chip-uncertain" id="btn-sample-uncertain" onclick="loadSample('uncertain')">
+                <i class="fa-solid fa-circle-question"></i> Uncertain / Borderline
+            </button>
+            <button type="button" class="sample-chip chip-clear" id="btn-sample-clear" onclick="clearMessage()">
+                <i class="fa-solid fa-eraser"></i> Clear
+            </button>
+        </div>
+
+        <div class="card-body">
+            <form id="scan-form" action="{{ url_for('scan_message') }}" method="POST">
+                <div class="input-area-wrapper">
+                    <textarea 
+                        name="message_text" 
+                        id="message_text" 
+                        rows="8" 
+                        placeholder="Paste suspicious email header, body, SMS, or notification text here to inspect threat vectors..." 
+                        required
+                    >{{ preset_text or '' }}</textarea>
+                    
+                    <div class="textarea-footer">
+                        <div class="stats-counter">
+                            <span id="char-count">0</span> characters &bull; <span id="word-count">0</span> words
+                        </div>
+                        <div class="quick-paste-wrap">
+                            <button type="button" class="btn-subtle" id="btn-paste-clipboard" onclick="pasteClipboard()">
+                                <i class="fa-regular fa-clipboard"></i> Paste from Clipboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Options -->
+                <div class="scanner-options-bar">
+                    <div class="options-group">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" id="deep-inspection" name="deep_inspection" checked>
+                            <span class="checkbox-indicator"></span>
+                            <span class="checkbox-label">Heuristic Regex Rules Enforcement</span>
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" id="explainability-mode" name="explainability" checked>
+                            <span class="checkbox-indicator"></span>
+                            <span class="checkbox-label">Token Weight Explainability</span>
+                        </label>
+                    </div>
+
+                    <div class="scanner-actions">
+                        <button type="submit" class="btn-cyber-primary" id="btn-submit-scan">
+                            <span class="btn-text"><i class="fa-solid fa-crosshairs"></i> SCAN MESSAGE</span>
+                            <span class="btn-scanner-glow"></span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Loading Scanner Animation -->
+            <div class="scanner-loading-overlay" id="scanner-loading" style="display: none;">
+                <div class="loading-scanner-beam"></div>
+                <div class="loading-content">
+                    <div class="cyber-spinner"></div>
+                    <div class="loading-status-text">DECONSTRUCTING LEXICAL N-GRAMS...</div>
+                    <div class="loading-substatus">Calculating TF-IDF vectors & matching heuristic signatures</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Telemetry Cards -->
+    <section class="telemetry-grid">
+        <div class="telemetry-card">
+            <div class="telemetry-icon-box cyan">
+                <i class="fa-solid fa-brain"></i>
+            </div>
+            <div class="telemetry-details">
+                <span class="telemetry-value">97.65%</span>
+                <span class="telemetry-label">Logistic Regression Accuracy</span>
+                <span class="telemetry-sub">Evaluated on 3,490 held-out test messages</span>
+            </div>
+        </div>
+
+        <div class="telemetry-card">
+            <div class="telemetry-icon-box green">
+                <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <div class="telemetry-details">
+                <span class="telemetry-value">98.02%</span>
+                <span class="telemetry-label">Phishing Precision</span>
+                <span class="telemetry-sub">Ultra-low false positive security threshold</span>
+            </div>
+        </div>
+
+        <div class="telemetry-card">
+            <div class="telemetry-icon-box purple">
+                <i class="fa-solid fa-sliders"></i>
+            </div>
+            <div class="telemetry-details">
+                <span class="telemetry-value">Tri-State</span>
+                <span class="telemetry-label">Verdict Architecture</span>
+                <span class="telemetry-sub">Phishing &bull; Legitimate &bull; Uncertain Review</span>
+            </div>
+        </div>
+
+        <div class="telemetry-card">
+            <div class="telemetry-icon-box yellow">
+                <i class="fa-solid fa-database"></i>
+            </div>
+            <div class="telemetry-details">
+                <span class="telemetry-value">{{ total_scans_logged or 0 }}</span>
+                <span class="telemetry-label">Telemetry Scans Logged</span>
+                <span class="telemetry-sub">Persisted in local SQLite audit trail</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Methodology Overview -->
+    <section class="methodology-section">
+        <div class="section-header text-center">
+            <h2 class="section-title">Tri-State Threat Verdict Pipeline</h2>
+            <p class="section-subtitle">How PhishShift prevents false alarms while capturing stealth zero-day lures</p>
+        </div>
+
+        <div class="pipeline-cards-row">
+            <div class="pipeline-card">
+                <div class="pipeline-step-badge">STAGE 01</div>
+                <div class="pipeline-icon"><i class="fa-solid fa-broom"></i></div>
+                <h3 class="pipeline-heading">Sanitization & Feature Tokenizer</h3>
+                <p class="pipeline-text">
+                    Strips noisy whitespace, normalizes URLs, masks IP addresses, and vectorizes n-grams across 10,000 sublinear TF-IDF features.
+                </p>
+            </div>
+
+            <div class="pipeline-card">
+                <div class="pipeline-step-badge">STAGE 02</div>
+                <div class="pipeline-icon"><i class="fa-solid fa-diagram-project"></i></div>
+                <h3 class="pipeline-heading">Dual-Engine Classification</h3>
+                <p class="pipeline-text">
+                    Cross-evaluates the input through our calibrated Logistic Regression model and multi-vector heuristic rules for urgency and financial triggers.
+                </p>
+            </div>
+
+            <div class="pipeline-card">
+                <div class="pipeline-step-badge">STAGE 03</div>
+                <div class="pipeline-icon"><i class="fa-solid fa-shield-virus"></i></div>
+                <h3 class="pipeline-heading">Uncertainty Risk Mapping</h3>
+                <p class="pipeline-text">
+                    Assigns definitive labels for clear cases while routing ambiguous scores (35% &ndash; 65%) to an Uncertain review status for security officer inspection.
+                </p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Presets for one-click testing
+    const PRESETS = {
+        phish: `URGENT SECURITY NOTICE: Your corporate account has been temporarily restricted due to unauthorized login attempts from IP 192.168.1.105. 
+
+To prevent permanent account termination, you must verify your identity within 24 hours. Failure to respond will result in immediate suspension of all cloud services.
+
+Please click here to verify your credentials and restore full access:
+http://security-update-portal-auth.com/login?token=89f3a9
+
+IT Security Operations Desk
+Emergency Action Required`,
+        
+        legit: `Hi Team,
+
+Attached is the revised project roadmap for Q4 after incorporating feedback from yesterday's product review meeting. Please review the updated milestones for the API integration before our sync on Thursday at 2:00 PM.
+
+Let me know if you have any questions or need adjustments to the schedule.
+
+Best regards,
+Alex Carter
+Senior Project Lead | Engineering Operations`,
+
+        uncertain: `Notification: Your monthly subscription renewal statement is now available online. 
+A receipt of $14.99 has been generated. To review recent activity or update your account notification preferences, visit your account portal.
+
+Thank you for being a valued member.`
+    };
+
+    function loadSample(type) {
+        const textarea = document.getElementById('message_text');
+        if (PRESETS[type]) {
+            textarea.value = PRESETS[type];
+            textarea.dispatchEvent(new Event('input'));
+            textarea.focus();
+        }
+    }
+
+    function clearMessage() {
+        const textarea = document.getElementById('message_text');
+        textarea.value = '';
+        textarea.dispatchEvent(new Event('input'));
+        textarea.focus();
+    }
+
+    async function pasteClipboard() {
+        try {
+            const text = await navigator.clipboard.readText();
+            const textarea = document.getElementById('message_text');
+            textarea.value = text;
+            textarea.dispatchEvent(new Event('input'));
+        } catch (err) {
+            alert('Clipboard permission denied. Please paste manually into the text box.');
+        }
+    }
+</script>
+{% endblock %}

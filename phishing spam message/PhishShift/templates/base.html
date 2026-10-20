@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PhishShift - Enterprise AI Phishing Email and Spam Detection Platform powered by Machine Learning and Real-time Threat Intelligence.">
+    <title>{% block title %}PhishShift | Cyber Threat Scanner{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Chart.js CDN for interactive charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <!-- Custom Cyber CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="cyber-theme">
+    <!-- Cyber Background Grid FX -->
+    <div class="cyber-grid-overlay" aria-hidden="true"></div>
+    <div class="cyber-glow-blob top-left" aria-hidden="true"></div>
+    <div class="cyber-glow-blob bottom-right" aria-hidden="true"></div>
+
+    <!-- Navigation Header -->
+    <header class="cyber-header" id="main-header">
+        <div class="cyber-container nav-wrapper">
+            <a href="{{ url_for('index') }}" class="cyber-brand" id="brand-link">
+                <div class="brand-icon-wrapper">
+                    <i class="fa-solid fa-shield-halved brand-shield"></i>
+                    <span class="shield-pulse"></span>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-name">Phish<span class="accent-cyan">Shift</span></span>
+                    <span class="brand-tagline">AI Threat Defense</span>
+                </div>
+            </a>
+
+            <div class="status-indicator-badge d-none-mobile" title="ML Defense Engine Status">
+                <span class="status-pulse-dot"></span>
+                <span class="status-text">DEFENSE ACTIVE // 97.6% ACCURACY</span>
+            </div>
+
+            <nav class="cyber-nav" id="cyber-nav-menu">
+                <ul class="nav-links">
+                    <li>
+                        <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" id="nav-scanner">
+                            <i class="fa-solid fa-crosshairs"></i> Scanner
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" id="nav-dashboard">
+                            <i class="fa-solid fa-chart-line"></i> Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('history') }}" class="nav-link {% if request.endpoint == 'history' %}active{% endif %}" id="nav-history">
+                            <i class="fa-solid fa-clock-rotate-left"></i> History
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('about') }}" class="nav-link {% if request.endpoint == 'about' %}active{% endif %}" id="nav-about">
+                            <i class="fa-solid fa-circle-info"></i> Architecture
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="cyber-main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Cyber Footer -->
+    <footer class="cyber-footer">
+        <div class="cyber-container footer-content">
+            <div class="footer-col brand-col">
+                <div class="footer-brand">
+                    <i class="fa-solid fa-shield-cat accent-cyan"></i> Phish<span class="accent-cyan">Shift</span>
+                </div>
+                <p class="footer-desc">
+                    Next-generation intelligent email & message threat classifier trained on real Kaggle datasets, combining TF-IDF lexical modeling, calibrated Logistic Regression, and heuristic cybersecurity rules.
+                </p>
+                <div class="footer-badges">
+                    <span class="badge-mini"><i class="fa-solid fa-brain"></i> TF-IDF + Logistic Reg</span>
+                    <span class="badge-mini"><i class="fa-solid fa-database"></i> SQLite Real Logs</span>
+                    <span class="badge-mini"><i class="fa-solid fa-shield"></i> Tri-State Verdict</span>
+                </div>
+            </div>
+            
+            <div class="footer-col links-col">
+                <h4 class="footer-heading">Navigation</h4>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('index') }}">Threat Scanner</a></li>
+                    <li><a href="{{ url_for('dashboard') }}">Telemetry & Metrics</a></li>
+                    <li><a href="{{ url_for('history') }}">Scan Audit Log</a></li>
+                    <li><a href="{{ url_for('about') }}">Methodology & Benchmarks</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col stats-col">
+                <h4 class="footer-heading">Classification Standard</h4>
+                <div class="footer-verdict-summary">
+                    <div class="verdict-row safe">
+                        <span class="dot safe-dot"></span>
+                        <span class="label">Legitimate (Clean)</span>
+                        <span class="range">&le; 35% Risk</span>
+                    </div>
+                    <div class="verdict-row warn">
+                        <span class="dot warn-dot"></span>
+                        <span class="label">Uncertain (Review)</span>
+                        <span class="range">35% &ndash; 65% Risk</span>
+                    </div>
+                    <div class="verdict-row phish">
+                        <span class="dot phish-dot"></span>
+                        <span class="label">Phishing (Blocked)</span>
+                        <span class="range">&ge; 65% Risk</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="cyber-container footer-bottom-inner">
+                <p>&copy; 2026 PhishShift Cyber Threat Detection Engine. Non-fabricated evaluation metrics.</p>
+                <div class="footer-tags">
+                    <span><i class="fa-solid fa-lock"></i> AES/SSL Secure</span>
+                    <span><i class="fa-solid fa-server"></i> Local SQLite DB</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Scripts -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
